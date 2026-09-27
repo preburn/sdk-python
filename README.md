@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/logo-dark.svg">
+    <img alt="Preburn logo" src="docs/images/logo-light.svg" width="72" height="72">
+  </picture>
+</p>
+
 # Preburn Python SDK
 
 Python client for [Preburn](https://github.com/preburn/preburn), a self-hosted service that decides before each AI call whether to allow it, route it to another model, cap it or deny it, based on each customer's margin. The SDK checks each call before it runs, reports its usage afterwards, and returns a fallback decision when Preburn cannot be reached.
