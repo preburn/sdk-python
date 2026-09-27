@@ -1,0 +1,8 @@
+{
+  "operation_id": "release-decision",
+  "status": 200,
+  "body": {
+    "decision_id": "dec_01m3f6jxf9fhktacp5ww2jav37",
+    "status": "released"
+  }
+}

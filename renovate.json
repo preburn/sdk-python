@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices", ":semanticCommits", ":gitSignOff", "schedule:weekly"],
+  "automerge": false,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^versions\\.env$/"],
+      "matchStrings": ["_IMAGE=(?<depName>[^\\s:@]+):(?<currentValue>[^\\s@]+)(?:@(?<currentDigest>sha256:[a-f0-9]{64}))?"],
+      "datasourceTemplate": "docker",
+      "autoReplaceStringTemplate": "_IMAGE={{{depName}}}:{{{newValue}}}{{#if newDigest}}@{{{newDigest}}}{{/if}}"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["/^versions\\.env$/"],
+      "matchStrings": ["(?:^|\\n)UV_VERSION=(?<currentValue>\\S+)\\nUV_SHA256_AMD64=(?<currentDigest>[a-f0-9]{64})"],
+      "depNameTemplate": "uv",
+      "packageNameTemplate": "astral-sh/uv",
+      "datasourceTemplate": "github-release-attachments"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["pep621"],
+      "groupName": "Python packages"
+    },
+    {
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions"
+    },
+    {
+      "matchFileNames": ["versions.env"],
+      "groupName": "tool versions"
+    }
+  ]
+}

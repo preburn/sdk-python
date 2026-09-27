@@ -1,0 +1,86 @@
+name: integration
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    runs-on: ubuntu-24.04
+    outputs:
+      uv-version: ${{ steps.read.outputs.UV_VERSION }}
+      uv-sha256-amd64: ${{ steps.read.outputs.UV_SHA256_AMD64 }}
+      server-version: ${{ steps.server.outputs.version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read versions.env
+        id: read
+        run: cat versions.env >> "$GITHUB_OUTPUT"
+      - name: Read the pinned server version
+        id: server
+        run: echo "version=$(cat tests/contract/SERVER_VERSION)" >> "$GITHUB_OUTPUT"
+
+  integration:
+    needs: versions
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      SERVER_VERSION: ${{ needs.versions.outputs.server-version }}
+      SERVER_IMAGE: ghcr.io/preburn/preburn:${{ needs.versions.outputs.server-version }}
+      SERVER_FILES_URL: https://raw.githubusercontent.com/preburn/preburn/v${{ needs.versions.outputs.server-version }}
+      PREBURN_BASE_URL: http://127.0.0.1:8080
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: ${{ needs.versions.outputs.uv-version }}
+          checksum: ${{ needs.versions.outputs.uv-sha256-amd64 }}
+      - name: Download the server's Compose files
+        run: |
+          mkdir server
+          curl --fail --silent --show-error --location --output server/compose.yaml "$SERVER_FILES_URL/compose.yaml"
+          curl --fail --silent --show-error --location --output server/.env "$SERVER_FILES_URL/.env.example"
+      - name: Generate a secret key
+        working-directory: server
+        run: |
+          secret_key="$(docker run --rm "$SERVER_IMAGE" secret-key)"
+          echo "::add-mask::$secret_key"
+          sed --in-place '/^PREBURN_SECRET_KEY=/d; /^PREBURN_VERSION=/d' .env
+          printf 'PREBURN_SECRET_KEY=%s\nPREBURN_VERSION=%s\n' "$secret_key" "$SERVER_VERSION" >> .env
+      - name: Start the stack
+        working-directory: server
+        run: |
+          docker compose up --detach
+          curl --fail --silent --show-error --retry 30 --retry-delay 2 --retry-all-errors --output /dev/null "$PREBURN_BASE_URL/readyz"
+      - name: Create a member and a runtime API key
+        working-directory: server
+        run: |
+          password="$(openssl rand -base64 24)"
+          echo "::add-mask::$password"
+          printf '%s\n' "$password" | docker compose exec -T api /preburn admin create --email ci@example.com --name CI --password-stdin
+          api_key="$(docker compose exec -T api /preburn admin api-key create --environment test --scope runtime --name sdk-integration)"
+          echo "::add-mask::$api_key"
+          echo "PREBURN_API_KEY=$api_key" >> "$GITHUB_ENV"
+      - name: Contract tests
+        run: make test-contract
+      - name: Integration tests
+        run: make test-integration
+      - name: Examples
+        run: |
+          uv run --locked --all-extras python examples/check_and_report.py
+          uv run --locked --all-extras python examples/async_worker.py
+          uv run --locked --all-extras python examples/record_revenue.py
+      - name: OpenAI example
+        if: env.OPENAI_API_KEY != ''
+        run: uv run --locked --all-extras python examples/openai_chat.py
+      - name: Server logs
+        if: failure()
+        working-directory: server
+        run: docker compose logs --no-color

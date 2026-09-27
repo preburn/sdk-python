@@ -1,0 +1,11 @@
+{
+  "operation_id": "report-usage",
+  "status": 409,
+  "body": {
+    "type": "https://github.com/preburn/preburn/blob/main/docs/errors.md#decision_not_reportable",
+    "title": "Conflict",
+    "status": 409,
+    "detail": "decision cannot be reported",
+    "code": "decision_not_reportable"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "operation_id": "record-revenue",
+  "status": 422,
+  "body": {
+    "type": "https://github.com/preburn/preburn/blob/main/docs/errors.md#validation_failed",
+    "title": "Unprocessable Entity",
+    "status": 422,
+    "detail": "validation failed",
+    "code": "validation_failed",
+    "errors": [
+      {
+        "location": "body.amount",
+        "message": "expected a non-negative amount with at most 9 decimals"
+      }
+    ]
+  }
+}

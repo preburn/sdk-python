@@ -1,0 +1,32 @@
+{
+  "operation_id": "check",
+  "status": 200,
+  "body": {
+    "decision_id": "dec_01m3f7g4h5j6k7m8n9p0q1r2s3",
+    "outcome": "allow",
+    "reason": "uncosted_allowed",
+    "provider": "openai",
+    "model": "gpt-7-preview",
+    "overrides": {},
+    "estimated_cost": null,
+    "reserved_amount": "0.000000000",
+    "estimate_basis": "none",
+    "cost_status": "uncosted",
+    "matched_policy_id": null,
+    "fallback_outcome": "allow",
+    "expires_at": "2026-09-26T10:10:00Z",
+    "signals": {
+      "period_revenue_net": "30.000000000",
+      "cost_allowance": "18.000000000",
+      "cost_to_date": "4.250000000",
+      "reserved": "0.012000000",
+      "elapsed_fraction": "0.2500",
+      "allowance_remaining": "13.738000000",
+      "pace": "0.9444",
+      "projected_margin": "0.4333",
+      "request_estimated_cost": null,
+      "period_decision_count": 41,
+      "features": {}
+    }
+  }
+}

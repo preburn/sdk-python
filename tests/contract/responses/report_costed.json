@@ -1,0 +1,10 @@
+{
+  "operation_id": "report-usage",
+  "status": 202,
+  "body": {
+    "ledger_entry_id": "led_01m3f6k30ber59s3c5ckgcxjkw",
+    "cost": "0.000020000",
+    "cost_status": "costed",
+    "duplicate": false
+  }
+}

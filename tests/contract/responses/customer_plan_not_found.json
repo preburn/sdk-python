@@ -1,0 +1,11 @@
+{
+  "operation_id": "upsert-customer",
+  "status": 422,
+  "body": {
+    "type": "https://github.com/preburn/preburn/blob/main/docs/errors.md#plan_not_found",
+    "title": "Unprocessable Entity",
+    "status": 422,
+    "detail": "plan not found",
+    "code": "plan_not_found"
+  }
+}

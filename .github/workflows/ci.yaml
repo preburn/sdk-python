@@ -1,0 +1,89 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    runs-on: ubuntu-24.04
+    outputs:
+      uv-version: ${{ steps.read.outputs.UV_VERSION }}
+      uv-sha256-amd64: ${{ steps.read.outputs.UV_SHA256_AMD64 }}
+      gitleaks-image: ${{ steps.read.outputs.GITLEAKS_IMAGE }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Read versions.env
+        id: read
+        run: cat versions.env >> "$GITHUB_OUTPUT"
+
+  python:
+    needs: versions
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@c18668ad3cf93ea998bef934396af7bb5c839dc7 # v10.2.0
+        with:
+          version: ${{ needs.versions.outputs.uv-version }}
+          checksum: ${{ needs.versions.outputs.uv-sha256-amd64 }}
+      - name: Lint
+        run: make lint PYTHON=${{ matrix.python-version }}
+      - name: Type check
+        run: make typecheck PYTHON=${{ matrix.python-version }}
+      - name: Unit tests
+        run: make test PYTHON=${{ matrix.python-version }}
+
+  secrets:
+    needs: versions
+    runs-on: ubuntu-24.04
+    env:
+      GITLEAKS_IMAGE: ${{ needs.versions.outputs.gitleaks-image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Test the leak guard
+        run: scripts/test-check-private-names.sh
+      - name: Scan the full history
+        if: github.event_name != 'pull_request'
+        run: >-
+          docker run --rm --volume "$PWD:/repository" "$GITLEAKS_IMAGE"
+          git --config /repository/.gitleaks.toml --no-banner --redact --verbose
+          /repository
+      - name: Scan the pull request commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: >-
+          docker run --rm --volume "$PWD:/repository" "$GITLEAKS_IMAGE"
+          git --config /repository/.gitleaks.toml --no-banner --redact --verbose
+          --log-opts "${BASE_SHA}..${HEAD_SHA}" /repository
+
+  dco:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check Signed-off-by trailers
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: scripts/check-dco.sh "$BASE_SHA" "$HEAD_SHA"

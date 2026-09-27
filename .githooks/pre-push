@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -o errexit -o nounset -o pipefail
+
+zero_sha_pattern='^0+$'
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [[ "${local_sha}" =~ ${zero_sha_pattern} ]]; then
+    continue
+  fi
+  if [[ "${remote_sha}" =~ ${zero_sha_pattern} ]]; then
+    revisions="${local_sha} --not --remotes"
+  else
+    revisions="${local_sha} --not ${remote_sha}"
+  fi
+  if ! make check-private-names REVISIONS="${revisions}"; then
+    echo "push blocked: private names in commits of ${local_ref} pushed to ${remote_ref}" >&2
+    exit 1
+  fi
+done
+
+if ! make check-private-names; then
+  echo "push blocked: private names in the working tree" >&2
+  exit 1
+fi

@@ -1,0 +1,14 @@
+[extend]
+useDefault = true
+
+[[rules]]
+id = "preburn-api-key"
+description = "Preburn API key"
+regex = '''pb_(?:test|live)_(?:runtime|admin)_[0-9A-Za-z]{32}'''
+keywords = ["pb_test_", "pb_live_"]
+
+[[rules]]
+id = "preburn-webhook-secret"
+description = "Preburn webhook signing secret"
+regex = '''whsec_[0-9A-Za-z+/]{22,}={0,2}'''
+keywords = ["whsec_"]

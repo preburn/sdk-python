@@ -1,0 +1,44 @@
+{
+  "operation_id": "report-usage-batch",
+  "status": 202,
+  "body": {
+    "results": [
+      {
+        "status": 202,
+        "result": {
+          "ledger_entry_id": "led_01m3f6p1q2r3s4t5v6w7x8y9z0",
+          "cost": "0.350000000",
+          "cost_status": "costed",
+          "duplicate": false
+        }
+      },
+      {
+        "status": 422,
+        "error": {
+          "code": "validation_failed",
+          "detail": "validation failed",
+          "errors": [
+            {
+              "location": "body.reports[1].usage",
+              "message": "expected at least one meter"
+            }
+          ]
+        }
+      },
+      {
+        "status": 409,
+        "error": {
+          "code": "decision_not_reportable",
+          "detail": "decision cannot be reported"
+        }
+      },
+      {
+        "status": 500,
+        "error": {
+          "code": "internal_error",
+          "detail": "internal error"
+        }
+      }
+    ]
+  }
+}

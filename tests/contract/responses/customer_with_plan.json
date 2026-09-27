@@ -1,0 +1,22 @@
+{
+  "operation_id": "upsert-customer",
+  "status": 200,
+  "body": {
+    "id": "cust_01m3f5a1b2c3d4e5f6g7h8j9k0",
+    "external_id": "team:acme@example.com",
+    "display_name": "Acme",
+    "plan_id": "pln_01m3f4z9y8x7w6v5t4s3r2q1p0",
+    "metadata": {
+      "tier": "gold",
+      "seats": 12,
+      "regions": [
+        "eu",
+        "us"
+      ],
+      "trial": false
+    },
+    "status": "active",
+    "created_at": "2026-09-01T08:30:00Z",
+    "updated_at": "2026-09-26T10:00:00.000001Z"
+  }
+}

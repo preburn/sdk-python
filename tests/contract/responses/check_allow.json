@@ -1,0 +1,38 @@
+{
+  "operation_id": "check",
+  "status": 200,
+  "body": {
+    "decision_id": "dec_01m3f6jxf9fhktacp5ww2jav37",
+    "outcome": "allow",
+    "reason": "no_policy_matched",
+    "provider": "openai",
+    "model": "gpt-6-sol",
+    "overrides": {},
+    "estimated_cost": "0.004000000",
+    "reserved_amount": "0.004000000",
+    "estimate_basis": "request_estimate",
+    "cost_status": "costed",
+    "matched_policy_id": null,
+    "fallback_outcome": "allow",
+    "expires_at": "2026-09-26T16:00:48.530799539Z",
+    "signals": {
+      "period_revenue_net": "0.000000000",
+      "cost_allowance": "0.000000000",
+      "cost_to_date": "0.000000000",
+      "reserved": "0.000000000",
+      "elapsed_fraction": "0.8553",
+      "allowance_remaining": "0.000000000",
+      "pace": "0.0000",
+      "projected_margin": "0.0000",
+      "request_estimated_cost": "0.004000000",
+      "period_decision_count": 0,
+      "features": {
+        "chat": {
+          "cost_to_date": "0.000000000",
+          "reserved": "0.000000000",
+          "period_decision_count": 0
+        }
+      }
+    }
+  }
+}

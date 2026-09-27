@@ -1,0 +1,21 @@
+{
+  "operation_id": "check",
+  "status": 422,
+  "body": {
+    "type": "https://github.com/preburn/preburn/blob/main/docs/errors.md#validation_failed",
+    "title": "Unprocessable Entity",
+    "status": 422,
+    "detail": "validation failed",
+    "code": "validation_failed",
+    "errors": [
+      {
+        "location": "body.feature",
+        "message": "expected a feature name matching ^[a-z][a-z0-9_]{0,63}$"
+      },
+      {
+        "location": "body.usage_estimate.input_tokens",
+        "message": "expected a non-negative quantity with at most 6 decimals, such as 8.5"
+      }
+    ]
+  }
+}
